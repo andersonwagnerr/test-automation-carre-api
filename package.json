@@ -1,0 +1,16 @@
+{
+  "name": "test-automation-carre-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "mocha \"tests/*.test.js\"",
+    "test:debug": "mocha --reporter spec --full-trace \"tests/*.test.js\""
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "axios": "^1.21.0",
+    "chai": "^6.3.0",
+    "mocha": "^12.0.3"
+  }
+}

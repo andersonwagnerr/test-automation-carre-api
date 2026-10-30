@@ -1,0 +1,369 @@
+{
+  "info": {
+    "_postman_id": "bd0ca8bf-80d5-4db4-b984-ded8ebd15ce9",
+    "name": "ServeRest - Usuários",
+    "description": "Fluxo CRUD de usuários na API ServeRest. A API publica essas rotas como /usuarios (não /users). Execute as requisições na ordem da collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://serverest.dev"
+    },
+    {
+      "key": "nome",
+      "value": ""
+    },
+    {
+      "key": "email",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "id",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "Criar usuário administrador",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const randomName = pm.variables.replaceIn('{{$randomFullName}}');",
+                  "const randomEmail = pm.variables.replaceIn('{{$randomUUID}}');",
+                  "const randomPassword = pm.variables.replaceIn('{{$randomAlphaNumeric}}');",
+                  "pm.collectionVariables.set('nome', randomName);",
+                  "pm.collectionVariables.set('email', `teste-${randomEmail}@example.com`);",
+                  "pm.collectionVariables.set('password', randomPassword);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Usuário criado com status 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Resposta contém o identificador do usuário', function () {",
+                  "  pm.expect(body._id).to.be.a('string').and.not.empty;",
+                  "});",
+                  "pm.collectionVariables.set('id', body._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{nome}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"administrador\": \"true\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Autenticar usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login realizado com status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Resposta contém o token JWT', function () {",
+                  "  pm.expect(body.authorization).to.be.a('string').and.not.empty;",
+                  "});",
+                  "pm.collectionVariables.set('token', body.authorization);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar usuários",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Lista retornada com status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Resposta contém uma lista de usuários', function () {",
+                  "  pm.expect(pm.response.json().usuarios).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar usuário por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Usuário encontrado com status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('ID retornado corresponde ao usuário criado', function () {",
+                  "  pm.expect(pm.response.json()._id).to.eql(pm.collectionVariables.get('id'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar usuário",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('nomeAtualizado', pm.variables.replaceIn('{{$randomFullName}}'));",
+                  "pm.collectionVariables.set('emailAtualizado', `atualizado-${pm.variables.replaceIn('{{$randomUUID}}')}@example.com`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Usuário atualizado com status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().message).to.eql('Registro alterado com sucesso');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{nomeAtualizado}}\",\n  \"email\": \"{{emailAtualizado}}\",\n  \"password\": \"{{password}}\",\n  \"administrador\": \"true\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validar dados atualizados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dados atualizados retornados com status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Nome e e-mail correspondem à atualização', function () {",
+                  "  pm.expect(pm.response.json()).to.include({",
+                  "    _id: pm.collectionVariables.get('id'),",
+                  "    nome: pm.collectionVariables.get('nomeAtualizado'),",
+                  "    email: pm.collectionVariables.get('emailAtualizado')",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Usuário excluído com status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
