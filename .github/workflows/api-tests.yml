@@ -31,5 +31,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run API tests
-        run: npm test
+      - name: Run API tests and generate JSON report
+        run: npx mocha --reporter json "tests/*.test.js" > test-results.json
+
+      - name: Add test results to the run summary
+        if: always()
+        run: node scripts/publish-test-summary.js
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mocha-test-report
+          path: test-results.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -75,7 +75,7 @@ api.interceptors.response.use(
   },
 );
 
-describe('ServeRest - usuários', function () {
+describe('API ServeRest: fluxo de gerenciamento de usuários', function () {
   this.timeout(30000);
 
   const user = {
@@ -118,13 +118,13 @@ describe('ServeRest - usuários', function () {
     }
   });
 
-  it('cria um usuário administrador', function () {
+  it('deve cadastrar um novo usuário administrador com dados aleatórios', function () {
     expect(createdUserResponse.status).to.equal(201);
     expect(createdUserResponse.data.message).to.equal('Cadastro realizado com sucesso');
     expect(userId).to.be.a('string').and.not.empty;
   });
 
-  it('lista os usuários', async function () {
+  it('deve encontrar o novo usuário na listagem de usuários', async function () {
     const response = await api.get('/usuarios');
 
     expect(response.status).to.equal(200);
@@ -132,7 +132,7 @@ describe('ServeRest - usuários', function () {
     expect(response.data.usuarios.some(({ _id }) => _id === userId)).to.equal(true);
   });
 
-  it('consulta um usuário pelo identificador', async function () {
+  it('deve consultar os dados do usuário pelo identificador', async function () {
     const response = await api.get(`/usuarios/${userId}`);
 
     expect(response.status).to.equal(200);
@@ -144,7 +144,7 @@ describe('ServeRest - usuários', function () {
     });
   });
 
-  it('atualiza os dados do usuário', async function () {
+  it('deve atualizar os dados do usuário e confirmar as alterações', async function () {
     const updatedUser = {
       nome: faker.person.fullName(),
       email: `atualizado-${randomUUID()}@andersonwagner.com`,
@@ -165,7 +165,7 @@ describe('ServeRest - usuários', function () {
     });
   });
 
-  it('exclui o usuário', async function () {
+  it('deve excluir o usuário cadastrado', async function () {
     const response = await api.delete(`/usuarios/${userId}`);
 
     userDeleted = true;
